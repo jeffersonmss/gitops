@@ -1,0 +1,77 @@
+# values.yaml
+grafana:
+  enabled: true
+  image:
+    tag: "12.2.0"
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    hosts:
+      - grafana.local
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    pathType: ImplementationSpecific
+  adminUser: admin
+  adminPassword: admin
+  service:
+    type: ClusterIP
+  sidecar:
+    datasources:
+      enabled: true
+      datasources:
+        - name: Loki
+          type: loki
+          url: http:///grafana-stack-loki:3100
+          access: proxy
+          editable: true
+
+loki:
+  image:
+    tag: "2.9.3"
+  enabled: true
+  isDefault: true
+  config:
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    ingester:
+      lifecycler:
+        address: 127.0.0.1
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+      chunk_idle_period: 5m
+      chunk_retain_period: 30s
+      max_transfer_retries: 0
+    schema_config:
+      configs:
+        - from: 2024-01-01
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v12
+          index:
+            prefix: index_
+            period: 24h
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /data/loki/index
+        cache_location: /data/loki/cache
+        shared_store: filesystem
+      filesystem:
+        directory: /data/loki/chunks
+    limits_config:
+      retention_period: 168h
+
+prometheus:
+  enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    hosts:
+      - prometheus.local
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    pathType: ImplementationSpecific
+  service:
+    type: ClusterIP
