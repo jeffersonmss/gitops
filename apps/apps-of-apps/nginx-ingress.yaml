@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind
+    repoURL: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
     targetRevision: HEAD
-    path: deploy.yaml
+    path: .
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
