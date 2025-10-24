@@ -3,15 +3,20 @@ kind: Application
 metadata:
   name: loki-stack
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
-  source:
-    repoURL: https://grafana.github.io/helm-charts
-    targetRevision: 2.10.2
-    chart: loki-stack
-    helm:
-      valueFiles:
-        - values/grafana-values.yaml
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 2.10.2
+      chart: loki-stack
+      helm:
+        valueFiles:
+        - $values/apps/apps-of-apps/values/grafana-values.yaml
+    - repoURL: https://github.com/jeffersonmss/gitops.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -19,3 +24,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
